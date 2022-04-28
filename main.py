@@ -1,14 +1,12 @@
+import os
 import logging
-import json
 from flask import Flask, request, abort
-from flask_ngrok import run_with_ngrok
 from data import db_session
 from data.users import User
 from data.events import Event
 from data.chapters import Chapter
 
 app = Flask(__name__)
-run_with_ngrok(app)
 logging.basicConfig(level=logging.INFO)
 
 
@@ -46,4 +44,5 @@ def create_user():
 
 if __name__ == '__main__':
     db_session.global_init('db/hackaton_alice.db')
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
