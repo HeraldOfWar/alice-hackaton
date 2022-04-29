@@ -17,8 +17,10 @@ def start(user_id):
     if user:
         response = {
             "user": user.user_id,
-            "chapter": user.chapter_id,
-            "event": user.event_id
+            "chapter_id": user.chapter_id,
+            "chapter": user.chapter.title,
+            "event_id": user.event_id,
+            "event": user.event.content
         }
         logging.info(f'Response: {response!r}')
         return response
@@ -35,8 +37,10 @@ def create_user():
     user = db_sess.query(User).filter(User.user_id == request.json['user_id']).first()
     response = {
         "user": user.user_id,
-        "chapter": user.chapter_id,
-        "event": user.event_id
+        "chapter_id": user.chapter_id,
+        "chapter": user.chapter.title,
+        "event_id": user.event_id,
+        "event": user.event.content
     }
     logging.info(f'Response: {response!r}')
     return response
