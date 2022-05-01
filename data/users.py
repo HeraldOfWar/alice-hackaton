@@ -16,10 +16,14 @@ class User(SqlAlchemyBase, SerializerMixin):
                                    sqlalchemy.ForeignKey('chapters.id'), default=0)
     event_id = sqlalchemy.Column(sqlalchemy.Integer,
                                  sqlalchemy.ForeignKey('events.id'), default=0)
+    reputation = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    mood = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    karma = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     chapter = orm.relation('Chapter')
     event = orm.relation('Event')
+    items = orm.relation('Item', back_populates='user')
 
     def __repr__(self):
         return f'<User> {self.username}'

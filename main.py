@@ -3,8 +3,16 @@ import logging
 from flask import Flask, request, abort
 from data import db_session
 from data.users import User
-from data.events import Event
 from data.chapters import Chapter
+from data.events import Event
+from data.items import Item
+
+REPUTATION = {-3: 'Ненависть', -2: 'Озлобленные', -1: 'Недоверие', 0: 'Нейтральные',
+              1: 'Доброжелательные', 2: 'Дружеские', 3: 'Лучшие друзья'}
+MOOD = {-3: 'Cуицид', -2: 'Панические атаки', -1: 'Депрессия', 0: 'Удовлетворительное',
+        1: 'Радость', 2: 'Счастье', 3: 'Абсолютная гармония'}
+KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негативная', 0: 'Чистая',
+         1: 'Позитивная', 2: 'Ангельская', 3: 'Божественная'}
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -27,6 +35,28 @@ def start(user_id):
     return abort(404)
 
 
+@app.route('/reset/<user_id>', methods=['POST'])
+def reset(user_id):
+    logging.info(f'Request: RESET {user_id} START')
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        try:
+            user.chapter_id = 0
+            user.event_id = 0
+            user.reputation = 0
+            user.mood = 0
+            user.karma = 0
+            for item in db_sess.query(Item).filter(Item.user_id == user.id).all():
+                db_sess.delete(item)
+            db_sess.commit()
+            logging.info(f'Request: RESET {user_id} SUCCESS')
+            return True
+        except Exception:
+            return 'Unexpected error'
+    return abort(404)
+
+
 @app.route('/create_user', methods=['POST'])
 def create_user():
     logging.info(f'Request: {request.json!r}')
@@ -44,6 +74,125 @@ def create_user():
     }
     logging.info(f'Response: {response!r}')
     return response
+
+
+@app.route('/get_event/<user_id>')
+def get_event(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        response = {
+            "event": user.event.content,
+            "buttons": user.event.buttons
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/next_event/<user_id>', methods=['POST'])
+def get_new_event(user_id):
+    logging.info(f'Request: {request.json!r}')
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        event = db_sess.query(Event).filter(Event.id == user.event_id).first()
+        if not event:
+            return abort(404)
+        next_event_id = event.next_events[int(request.json['answer'])]
+        user.event_id = next_event_id
+        db_sess.commit()
+        response = {
+            "event": user.event.content,
+            "buttons": user.event.buttons
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/get_stats/<user_id>')
+def get_stats(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        response = {
+            "reputation": f'{REPUTATION[user.reputation]} ({user.reputation})',
+            "mood": f'{MOOD[user.mood]} ({user.mood})',
+            "karma": f'{KARMA[user.karma]} ({user.karma})'
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/add_stats/<user_id>', methods=['POST'])
+def add_stats(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        user.reputation += int(request.json['reputation'])
+        user.mood += int(request.json['mood'])
+        user.karma += int(request.json['karma'])
+        response = {
+            "reputation": f'{REPUTATION[user.reputation]} ({user.reputation})',
+            "mood": f'{MOOD[user.mood]} ({user.mood})',
+            "karma": f'{KARMA[user.karma]} ({user.karma})'
+        }
+        db_sess.commit()
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/get_stock/<user_id>')
+def get_stock(user_id):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        response = {
+            "items": ', '.join([item.title for item in user.items])
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/get_item/<item_title>')
+def get_item(item_title):
+    db_sess = db_session.create_session()
+    item = db_sess.query(Item).filter(Item.title == item_title.lower().strip()).first()
+    if item:
+        response = {
+            "title": item.title,
+            "description": item.description,
+            "user_id": item.user_id
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
+
+
+@app.route('/add_item/<user_id>', methods=['POST'])
+def add_item(user_id):
+    logging.info(f'Request: {request.json!r}')
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.user_id == user_id).first()
+    if user:
+        item = Item(title=request.json['title'],
+                    description=request.json['description'],
+                    user_id=user.id)
+        user.items.append(item)
+        db_sess.merge(user)
+        db_sess.commit()
+        response = {
+            "title": item.title,
+            "description": item.description,
+            "user_id": item.user_id
+        }
+        logging.info(f'Response: {response!r}')
+        return response
+    return abort(404)
 
 
 if __name__ == '__main__':
