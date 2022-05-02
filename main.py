@@ -47,7 +47,7 @@ def main():
         'response': {
             'end_session': False
         },
-        'user_state_update':{
+        'user_state_update': {
             'chapter': 0,
             'event': 0,
             'reputation': 0,
@@ -64,7 +64,7 @@ def main():
     logging.info(f'Response:  {response!r}')
 
     # Преобразовываем в JSON и возвращаем
-    return json.dumps(response)
+    return response
 
 
 def handle_dialog(req, res):
