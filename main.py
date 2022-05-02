@@ -46,6 +46,13 @@ def main():
         'version': request.json['version'],
         'response': {
             'end_session': False
+        },
+        'user_state_update':{
+            'chapter': 0,
+            'event': 0,
+            'reputation': 0,
+            'mood': 0,
+            'karma': 0
         }
     }
 
