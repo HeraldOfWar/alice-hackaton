@@ -1,4 +1,4 @@
-import data_handler
+import json
 
 REPUTATION = {-3: 'Ненависть', -2: 'Озлобленные', -1: 'Недоверие', 0: 'Нейтральные',
               1: 'Доброжелательные', 2: 'Дружеские', 3: 'Лучшие друзья'}
@@ -10,19 +10,22 @@ KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негатив
 
 def handle_dialog(req, res):
     if not req['state']['user']:
-        return start(res)
-    res['user_state_update'] = req['state']['user']
-    return res
-
-
-def start(res):
-    res['user_state_update'] = {
-        'chapter': -1,
-        'event': 0,
-        'reputation': 0,
-        'mood': 0,
-        'karma': 0
-    }
-    res['text'] = data_handler.start_reader
+        res['user_state_update'] = {
+            'chapter': 'start',
+            'event': 'greeting',
+            'reputation': 0,
+            'mood': 0,
+            'karma': 0
+        }
+        data = data_handler('start')
+    else:
+        res['user_state_update'] = req['state']['user']
+        data = data_handler(req['state']['user']['chapter'])
+    res['text'] = data[res['user_state_update']['event']]['text']
     res['tts'] = res['text']
     return res
+
+
+def data_handler(chapter):
+    with open(f'data/events/{chapter}.json') as json_file:
+        return json.load(json_file)

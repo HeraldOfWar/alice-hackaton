@@ -1,0 +1,24 @@
+{
+  "greeting": {
+    "text": "",
+    "buttons": [
+      {
+        "title": "",
+        "payload": {
+          "chapter": "start",
+          "event": ""
+        }
+      }
+    ],
+    "next_events": "",
+    "items": "",
+    "stats": {
+      "reputation": 0,
+      "mood": 0,
+      "karma": 0
+    },
+    "last_event": false
+  },
+  "": {
+  }
+}
