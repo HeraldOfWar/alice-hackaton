@@ -38,7 +38,7 @@ def dialog_handler(req, res):
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
     res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-    res['response']['tts'] = res['text']
+    res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
     return res
 
