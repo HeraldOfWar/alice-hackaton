@@ -1,24 +1,571 @@
 {
-  "greeting": {
-    "text": "",
-    "buttons": [
-      {
-        "title": "",
-        "payload": {
-          "chapter": "start",
-          "event": ""
-        }
-      }
-    ],
-    "next_events": "",
-    "items": "",
-    "stats": {
-      "reputation": 0,
-      "mood": 0,
-      "karma": 0
-    },
-    "last_event": false
-  },
-  "": {
-  }
+	"title": "Приветствие",
+	"index": 0,
+	"events": {
+		"greeting": {
+			"text": "Добро пожаловать на борт, дружище! Готов стать капитаном корабля и отправиться в незабываемое космическое путешествие?\n\n\"Становление командира\" – это аудио-текстовый квест, в котором Вам в роли капитана торгового межгалактического корабля \"SpaceY\" предстоит доставить один ценный груз. Космос полон тайн и загадок, которые нуждаются именно в Вашем решении, так что приготовьтесь и вперёд – к звёздам!",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"ready_to_start": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"not_ready_to_start": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"misunderstanding": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"rules_1": {
+			"text": "Перед вами аудио-текстовый квест \"Становление Командира\". Приготовьтесь отправиться в 2222 год и услышать увлекательную историю о космическом путешествии одного технического оператора, которому не посчастливилось стать свидетелем ужасной катастрофы на корабле. В ходе игры Вам предстоит решить множество головоломок, сразиться с врагами и не раз принять серьёзное решение, которое может повлиять на дальнейшие развитие сюжета и характеристики главного героя.",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"rules_2": {
+			"text": "Начнём с характеристик, их не так много: \"Репутация\", \"Моральное состояние\" и \"Карма\". \"Репутация\" отвечает за взаимоотношения с командой, \"Моральное состояние\" влияет на ваши поступки, а \"Карма\" – на вероятность выпадения негативных событий. Значения характеристик будут меняться в течение игры в зависимости от принятых решений. Проверить свои характеристики можно, обратившись к Алисе с сообщением \"Мои характеристики\".",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"rules_3": {
+			"text": "Также по ходу игры Вы будете находить случайные предметы, которые могут помочь в будущем. Посмотреть свой инвентарь можно, обратившись к Алисе с сообщением \"Мой инвентарь\".\nПомимо всего прочего, Алиса отвечает на ряд других команд, список которых Вы можете получить сообщением \"Помощь\"",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"plot": {
+			"text": "Наступил 2222 год. Люди уже давно научились свободно перемещаться в космосе, заселяют пригодные планеты и путешествуют между ними. Крупные организации также вышли в космическое пространство и предоставляют услуги межгалактического масштаба. \"Яндекс\"– одна из таких мегакорпораций, и вот уже несколько лет Вы являетесь её сотрудником – обслуживаете космические корабли компании. На последнем судне, которое Вам поручили сопровождать, произошёл несчастный случай: погибла большая часть состава, и теперь Вы должны стать капитаном. Готовы принять этот пост?",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"misunderstanding_1": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"misunderstanding_2": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"m": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		},
+		"final": {
+			"text": "",
+			"buttons": [
+				{
+					"title": "Всегда готов!",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": {
+				"not_ready_to_start": [
+					"не готов"
+				],
+				"ready_to_start": [
+					"готов"
+				],
+				"misunderstanding": []
+			},
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false
+		}
+	},
+	"next_chapter": "prologue"
 }

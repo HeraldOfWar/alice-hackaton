@@ -2,7 +2,7 @@
 import logging
 import os
 from flask import Flask, request
-from handler import handle_dialog
+from handlers import handle_dialog
 
 # создаём приложение
 # мы передаём __name__, в нем содержится информация,
