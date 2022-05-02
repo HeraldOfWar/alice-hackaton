@@ -32,14 +32,14 @@ def dialog_handler(req, res):
                 res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
         else:
             res['user_state_update']['event'] = answer_handler(req['original_utterance'])
+        res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['reputation']
+        res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['mood']
+        res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['karma']
+        for item in data['events'][res['user_state_update']['event']]['items']:
+            res['user_state_update']['items'].append(item)
     res['text'] = data['events'][res['user_state_update']['event']]['text']
     res['tts'] = res['text']
     res['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
-    res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['reputation']
-    res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['mood']
-    res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['karma']
-    for item in data['events'][res['user_state_update']['event']]['items']:
-        res['user_state_update']['items'].append(item)
     return res
 
 
