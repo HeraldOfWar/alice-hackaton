@@ -27,6 +27,8 @@ def dialog_handler(req, res):
         else:
             res['user_state_update'] = req['state']['user']
             data = data_handler(req['state']['user']['chapter'])
+            if data == 'Error':
+                raise Exception
             if req['request']['payload']:
                 if data['events'][req['state']['user']['event']]['last_event']:
                     res['user_state_update']['event'] = data['events'][req['state']['user']['event']]['next_event'][0][
@@ -48,7 +50,8 @@ def dialog_handler(req, res):
                 res['user_state_update']['items'].append(item)
         if res['user_state_update']['event'] == req['state']['user']['event']:
             res['response'][
-                'text'] = f"Прошу прощения, ответьте конкретнее.\n\n{data['events'][res['user_state_update']['event']]['text']}"
+                'text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
+                          f"{data['events'][res['user_state_update']['event']]['text']}"
         else:
             res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
@@ -72,8 +75,11 @@ def dialog_handler(req, res):
 
 
 def data_handler(chapter):
-    with open(f'data/events/{chapter}.json') as json_file:
-        return json.load(json_file)
+    try:
+        with open(f'data/events/{chapter}.json') as json_file:
+            return json.load(json_file)
+    except FileNotFoundError:
+        return 'Error'
 
 
 def intent_handler(res, intent):
