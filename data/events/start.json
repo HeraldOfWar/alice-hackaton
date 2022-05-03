@@ -32,15 +32,43 @@
 					"hide": true
 				}
 			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
+			"next_events": [
+				{
+					"event": "not_ready_to_start",
+					"keys": [
+						"не готов",
+						"не хочу",
+						"не буду",
+						"не",
+						"нет",
+						"ни за что",
+						"не знаю",
+						"не уверен",
+						"подумать",
+						"погоди"
+					]
+				},
+				{
+					"event": "ready_to_start",
+					"keys": [
+						"готов",
+						"поехали",
+						"ладно",
+						"погнали",
+						"го",
+						"давай",
+						"нач",
+						"да",
+						"отлично",
+						"хочу",
+						"вперёд"
+					]
+				},
+				{
+					"event": "misunderstanding",
+					"keys": []
+				}
+			],
 			"items": [],
 			"stats": {
 				"reputation": 0,

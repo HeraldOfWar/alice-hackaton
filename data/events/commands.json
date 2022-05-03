@@ -1,0 +1,62 @@
+{
+	"help": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	},
+	"description": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	},
+	"story": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	},
+	"rules_1": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	},
+	"rules_2": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	},
+	"rules_3": {
+		"text": "",
+		"buttons": [
+			{
+				"title": "",
+				"payload": {},
+				"hide": true
+			}
+		]
+	}
+}
