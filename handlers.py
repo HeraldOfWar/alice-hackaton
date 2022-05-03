@@ -38,7 +38,7 @@ def dialog_handler(req, res):
                 res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
         else:
             res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
-                                                               list(req['request']['nlu']['tokens']))
+                                                               req['request']['original_utterance'])
 
         res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
             'reputation']
@@ -71,12 +71,12 @@ def intent_handler(res, intent):
     return
 
 
-def answer_handler(req, events, tokens):
-    for token in tokens:
-        for event in list(events['next_events']):
-            if token in event['keys']:
+def answer_handler(req, events, text):
+    for event in events['next_events']:
+        for word in event['keys']:
+            if word in text:
                 return event['event']
-    for event in list(events['next_events']):
+    for event in events['next_events']:
         if 'misunderstanding' in event['event']:
             return event['event']
     return req['state']['user']['event']
