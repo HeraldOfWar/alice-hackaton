@@ -49,9 +49,10 @@ def dialog_handler(req, res):
             for item in data['events'][res['user_state_update']['event']]['items']:
                 res['user_state_update']['items'].append(item)
         if res['user_state_update']['event'] == req['state']['user']['event']:
-            res['response'][
-                'text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
-                          f"{data['events'][res['user_state_update']['event']]['text']}"
+            print(res['user_state_update']['event'])
+            print(req['state']['user']['event'])
+            res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
+                                      f"{data['events'][res['user_state_update']['event']]['text']}"
         else:
             res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
@@ -94,10 +95,10 @@ def intent_handler(res, intent):
 
 def answer_handler(req, events, tokens):
     for token in tokens:
-        for event in list(events['next_event']):
+        for event in list(events['next_events']):
             if token in event['keys']:
                 return event['event']
-    for event in list(events['next_event']):
+    for event in list(events['next_events']):
         if 'misunderstanding' in event['event']:
             return event['event']
     return req['state']['user']['event']

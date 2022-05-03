@@ -75,7 +75,8 @@
 				"mood": 0,
 				"karma": 0
 			},
-			"last_event": false
+			"last_event": false,
+			"yes_or_not": true
 		},
 		"ready_to_start": {
 			"text": "",
