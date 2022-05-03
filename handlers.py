@@ -72,6 +72,7 @@ def dialog_handler(req, res):
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+        return res
 
 
 def data_handler(chapter):
