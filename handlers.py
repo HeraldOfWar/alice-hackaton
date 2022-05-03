@@ -23,9 +23,9 @@ def dialog_handler(req, res):
         }
         data = data_handler('start')
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-    elif list(req['request']['nlu']['intents'].keys())[0] == 'YANDEX.REAPET':
-        res['user_state_update'] = req['state']['user'].copy()
+    elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'YANDEX.REAPET':
         data = data_handler(req['state']['user']['chapter'])
+        res['user_state_update'] = req['state']['user'].copy()
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
