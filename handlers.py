@@ -25,7 +25,7 @@ def dialog_handler(req, res):
         res['user_state_update'] = req['state']['user']
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
     else:
-        res['user_state_update'] = req['state']['user']
+        res['user_state_update'] = req['state']['user'][:]
         data = data_handler(req['state']['user']['chapter'])
         if req['request']['type'] == 'ButtonPressed':
             if data['events'][req['state']['user']['event']]['last_event']:
