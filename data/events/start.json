@@ -125,7 +125,7 @@
 					]
 				},
 				{
-					"event": "misunderstanding_1",
+					"event": "misunderstanding",
 					"keys": []
 				}
 			],
@@ -182,7 +182,7 @@
 					]
 				},
 				{
-					"event": "misunderstanding_1",
+					"event": "misunderstanding",
 					"keys": []
 				}
 			],
@@ -239,61 +239,8 @@
 					]
 				},
 				{
-					"event": "misunderstanding_1",
+					"event": "misunderstanding",
 					"keys": []
-				}
-			],
-			"items": [],
-			"stats": {
-				"reputation": 0,
-				"mood": 0,
-				"karma": 0
-			},
-			"last_event": false,
-			"yes_or_not": false
-		},
-		"misunderstanding_1": {
-			"text": "Я тебя не понял. Хочешь изучить правила – скажи \"Правила\", хочешь начать сразу с сюжета – говори \"Сюжет\".",
-			"buttons": [
-				{
-					"title": "Правила",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "rules_1"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				},
-				{
-					"title": "Сюжет",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "plot"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				}
-			],
-			"next_events": [
-				{
-					"event": "rules_1",
-					"keys": [
-						"правил", "помо"
-					]
-				},
-				{
-					"event": "plot",
-					"keys": [
-						"сюжет", "стори", "игр"
-					]
 				}
 			],
 			"items": [],
@@ -476,7 +423,7 @@
 			"text": "Наступил 2222 год. Люди уже давно научились свободно перемещаться в космосе, заселяют пригодные планеты и путешествуют между ними. Крупные организации также вышли в космическое пространство и предоставляют услуги межгалактического масштаба. \"Яндекс\"– одна из таких мегакорпораций, и вот уже несколько лет Вы являетесь её сотрудником – обслуживаете космические корабли компании. На последнем судне, которое Вам поручили сопровождать, произошёл несчастный случай: погибла большая часть состава, и теперь Вы должны стать капитаном. Готовы принять этот пост?\n\nДля начала игры скажите \"Готов\"!",
 			"buttons": [
 				{
-					"title": "Так точно!",
+					"title": "Готов!",
 					"payload": {
 						"next_event": [
 							{
@@ -536,7 +483,7 @@
 					]
 				},
 				{
-					"event": "misunderstanding_2",
+					"event": "misunderstanding",
 					"keys": []
 				}
 			],
@@ -621,89 +568,6 @@
 						"вперёд",
 						"так точно",
 						"игр"
-					]
-				}
-			],
-			"items": [],
-			"stats": {
-				"reputation": 0,
-				"mood": 0,
-				"karma": 0
-			},
-			"last_event": false,
-			"yes_or_not": false
-		},
-		"misunderstanding_2": {
-			"text": "Какой-то неуверенный ответ! Если готов принять этот пост и начать игру, скажи \"Готов\", а если нужно, например, повторить правила – говори \"Правила\".",
-			"buttons": [
-				{
-					"title": "Готов!",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "final"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				},
-				{
-					"title": "Повторить правила",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "rules_1"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				},
-				{
-					"title": "Повторить сюжет",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "plot"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				}
-			],
-			"next_events": [
-				{
-					"event": "rules_1",
-					"keys": [
-						"правил", "помо"
-					]
-				},
-				{
-					"event": "plot",
-					"keys": [
-						"сюжет", "стори", "игр"
-					]
-				},
-				{
-					"event": "final",
-					"keys": [
-						"готов",
-						"поехали",
-						"ладно",
-						"погнали",
-						"го",
-						"давай",
-						"нач",
-						"да",
-						"отлично",
-						"хочу",
-						"вперёд",
-						"так точно"
 					]
 				}
 			],
