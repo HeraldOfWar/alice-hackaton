@@ -79,15 +79,15 @@
 			"yes_or_not": true
 		},
 		"ready_to_start": {
-			"text": "",
+			"text": "Отлично, тогда не будем терять времени! Послушаешь правила или сразу перейдём к сюжету?",
 			"buttons": [
 				{
-					"title": "Всегда готов!",
+					"title": "Правила",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "ready_to_start"
+								"event": "rules_1"
 							}
 						],
 						"random": false
@@ -95,12 +95,12 @@
 					"hide": true
 				},
 				{
-					"title": "Не уверен...",
+					"title": "Сюжет",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "not_ready_to_start"
+								"event": "plot"
 							}
 						],
 						"random": false
@@ -108,15 +108,24 @@
 					"hide": true
 				}
 			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
+			"next_events": [
+				{
+					"event": "rules_1",
+					"keys": [
+						"правил", "помо"
+					]
+				},
+				{
+					"event": "plot",
+					"keys": [
+						"сюжет", "стори", "игр"
+					]
+				},
+				{
+					"event": "misunderstanding_1",
+					"keys": []
+				}
+			],
 			"items": [],
 			"stats": {
 				"reputation": 0,
@@ -126,15 +135,15 @@
 			"last_event": false
 		},
 		"not_ready_to_start": {
-			"text": "",
+			"text": "Похоже, приветствие тебя не зацепило. Может, тогда послушаешь правила? Или вовсе сразу перейдём к сюжету?",
 			"buttons": [
 				{
-					"title": "Всегда готов!",
+					"title": "Правила",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "ready_to_start"
+								"event": "rules_1"
 							}
 						],
 						"random": false
@@ -142,12 +151,12 @@
 					"hide": true
 				},
 				{
-					"title": "Не уверен...",
+					"title": "Сюжет",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "not_ready_to_start"
+								"event": "plot"
 							}
 						],
 						"random": false
@@ -155,15 +164,74 @@
 					"hide": true
 				}
 			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
+			"next_events": [
+				{
+					"event": "rules_1",
+					"keys": [
+						"правил", "помо"
+					]
+				},
+				{
+					"event": "plot",
+					"keys": [
+						"сюжет", "стори", "игр"
+					]
+				},
+				{
+					"event": "misunderstanding_1",
+					"keys": []
+				}
+			],
+			"last_event": false
+		},
+		"misunderstanding": {
+			"text": "Честно говоря, я тебя не понял... Ну и ладно, давай лучше расскажу тебе правила. Или хочешь сразу перейти к сюжету?",
+			"buttons": [
+				{
+					"title": "Правила",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "rules_1"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Сюжет",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "plot"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": [
+				{
+					"event": "rules_1",
+					"keys": [
+						"правил", "помо"
+					]
+				},
+				{
+					"event": "plot",
+					"keys": [
+						"сюжет", "стори", "игр"
+					]
+				},
+				{
+					"event": "misunderstanding_1",
+					"keys": []
+				}
+			],
 			"items": [],
 			"stats": {
 				"reputation": 0,
@@ -172,16 +240,16 @@
 			},
 			"last_event": false
 		},
-		"misunderstanding": {
-			"text": "",
+		"misunderstanding_1": {
+			"text": "Ты какой-то странный... Давай договоримся отвечать прямо: хочешь изучить правила – скажи \"Правила\", хочешь начать сразу с сюжета – говори \"Сюжет\".",
 			"buttons": [
 				{
-					"title": "Всегда готов!",
+					"title": "Правила",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "ready_to_start"
+								"event": "rules_1"
 							}
 						],
 						"random": false
@@ -189,12 +257,12 @@
 					"hide": true
 				},
 				{
-					"title": "Не уверен...",
+					"title": "Сюжет",
 					"payload": {
 						"next_event": [
 							{
 								"chapter": "start",
-								"event": "not_ready_to_start"
+								"event": "plot"
 							}
 						],
 						"random": false
@@ -202,15 +270,20 @@
 					"hide": true
 				}
 			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
+			"next_events": [
+				{
+					"event": "rules_1",
+					"keys": [
+						"правил", "помо"
+					]
+				},
+				{
+					"event": "plot",
+					"keys": [
+						"сюжет", "стори", "игр"
+					]
+				}
+			],
 			"items": [],
 			"stats": {
 				"reputation": 0,
@@ -362,100 +435,6 @@
 		},
 		"plot": {
 			"text": "Наступил 2222 год. Люди уже давно научились свободно перемещаться в космосе, заселяют пригодные планеты и путешествуют между ними. Крупные организации также вышли в космическое пространство и предоставляют услуги межгалактического масштаба. \"Яндекс\"– одна из таких мегакорпораций, и вот уже несколько лет Вы являетесь её сотрудником – обслуживаете космические корабли компании. На последнем судне, которое Вам поручили сопровождать, произошёл несчастный случай: погибла большая часть состава, и теперь Вы должны стать капитаном. Готовы принять этот пост?",
-			"buttons": [
-				{
-					"title": "Всегда готов!",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "ready_to_start"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				},
-				{
-					"title": "Не уверен...",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "not_ready_to_start"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				}
-			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
-			"items": [],
-			"stats": {
-				"reputation": 0,
-				"mood": 0,
-				"karma": 0
-			},
-			"last_event": false
-		},
-		"misunderstanding_1": {
-			"text": "",
-			"buttons": [
-				{
-					"title": "Всегда готов!",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "ready_to_start"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				},
-				{
-					"title": "Не уверен...",
-					"payload": {
-						"next_event": [
-							{
-								"chapter": "start",
-								"event": "not_ready_to_start"
-							}
-						],
-						"random": false
-					},
-					"hide": true
-				}
-			],
-			"next_events": {
-				"not_ready_to_start": [
-					"не готов"
-				],
-				"ready_to_start": [
-					"готов"
-				],
-				"misunderstanding": []
-			},
-			"items": [],
-			"stats": {
-				"reputation": 0,
-				"mood": 0,
-				"karma": 0
-			},
-			"last_event": false
-		},
-		"misunderstanding_2": {
-			"text": "",
 			"buttons": [
 				{
 					"title": "Всегда готов!",
