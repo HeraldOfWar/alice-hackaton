@@ -20,6 +20,7 @@ def dialog_handler(req, res):
             'items': []
         }
         data = data_handler('start')
+        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
     elif req['request']['nlu']['intents'] and req['state']['user']['chapter'] != 'start':
         res['user_state_update'] = req['state']['user']
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
@@ -37,7 +38,7 @@ def dialog_handler(req, res):
                 res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
         else:
             res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
-                                                               list(req['request']['nlu']['tokens']))
+                                                               req['request']['original_utterance'])
 
         res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
             'reputation']
@@ -45,13 +46,13 @@ def dialog_handler(req, res):
         res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
-    if res['user_state_update']['event'] == req['state']['user']['event']:
-        print(res['user_state_update']['event'])
-        print(req['state']['user']['event'])
-        res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
-                                  f"{data['events'][res['user_state_update']['event']]['text']}"
-    else:
-        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        if res['user_state_update']['event'] == req['state']['user']['event']:
+            print(res['user_state_update']['event'])
+            print(req['state']['user']['event'])
+            res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
+                                      f"{data['events'][res['user_state_update']['event']]['text']}"
+        else:
+            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
 
@@ -72,12 +73,12 @@ def intent_handler(res, intent):
     return
 
 
-def answer_handler(req, events, tokens):
-    for token in tokens:
-        for event in list(events['next_events']):
-            if token in event['keys']:
+def answer_handler(req, events, text):
+    for event in events['next_events']:
+        for word in event['keys']:
+            if word in text:
                 return event['event']
-    for event in list(events['next_events']):
+    for event in events['next_events']:
         if 'misunderstanding' in event['event']:
             return event['event']
     return req['state']['user']['event']
