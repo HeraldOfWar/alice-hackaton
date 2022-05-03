@@ -20,6 +20,7 @@ def dialog_handler(req, res):
             'items': []
         }
         data = data_handler('start')
+        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
     elif req['request']['nlu']['intents'] and req['state']['user']['chapter'] != 'start':
         res['user_state_update'] = req['state']['user']
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
@@ -45,13 +46,11 @@ def dialog_handler(req, res):
         res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
-    if res['user_state_update']['event'] == req['state']['user']['event']:
-        print(res['user_state_update']['event'])
-        print(req['state']['user']['event'])
-        res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
-                                  f"{data['events'][res['user_state_update']['event']]['text']}"
-    else:
-        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        if res['user_state_update']['event'] == req['state']['user']['event']:
+            res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
+                                      f"{data['events'][res['user_state_update']['event']]['text']}"
+        else:
+            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
 
