@@ -22,7 +22,7 @@ def dialog_handler(req, res):
         data = data_handler('start')
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
     elif req['request']['nlu']['intents'] and req['state']['user']['chapter'] != 'start':
-        res['user_state_update'] = req['state']['user']
+        res['user_state_update'] = req['state']['user'].copy()
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
     else:
         res['user_state_update'] = req['state']['user'].copy()
@@ -74,6 +74,8 @@ def intent_handler(res, intent):
 
 
 def answer_handler(req, events, text):
+    if not text:
+        return req['state']['user']['event']
     for event in events['next_events']:
         for word in event['keys']:
             if word in text:
