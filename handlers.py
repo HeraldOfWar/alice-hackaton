@@ -47,6 +47,8 @@ def dialog_handler(req, res):
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
         if res['user_state_update']['event'] == req['state']['user']['event']:
+            print(res['user_state_update']['event'])
+            print(req['state']['user']['event'])
             res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
                                       f"{data['events'][res['user_state_update']['event']]['text']}"
         else:
