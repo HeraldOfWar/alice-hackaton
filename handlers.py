@@ -28,6 +28,8 @@ def dialog_handler(req, res):
     data = data_handler(req['state']['user']['chapter'])
     if req['request']['type'] == 'ButtonPressed':
         res = button_handler(res, req, data)
+        if data['events'][req['state']['user']['event']]['last_event']:
+            data = data_handler(data['next_chapter'])
     else:
         res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
                                                            req['request']['original_utterance'])
@@ -106,8 +108,6 @@ def button_handler(res, req, data):
         res['user_state_update']['event'] = req['request']['payload']['next_event'][0]['event']
     else:
         res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
-    if data['events'][req['state']['user']['event']]['last_event']:
-        data = data_handler(data['next_chapter'])
     return res
 
 
