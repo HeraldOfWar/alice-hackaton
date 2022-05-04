@@ -41,7 +41,7 @@ def dialog_handler(req, res):
         data = data_handler(req['state']['user']['chapter'])
         if req['request']['type'] == 'ButtonPressed':
             if data['events'][req['state']['user']['event']]['last_event']:
-                res['user_state_update']['event'] = data['events'][req['state']['user']['event']]['next_event'][0][
+                res['user_state_update']['event'] = data['events'][req['state']['user']['event']]['next_events'][0][
                     'event']
                 data = data_handler(data['next_chapter'])
             elif not req['request']['payload']['random']:

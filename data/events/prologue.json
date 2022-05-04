@@ -2,6 +2,85 @@
   "title": "Пролог",
   "index": 1,
   "events": {
+    "event_0": {
+			"text": "",
+            "buttons": [
+				{
+					"title": "Начинаем",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				},
+				{
+					"title": "Не уверен...",
+					"payload": {
+						"next_event": [
+							{
+								"chapter": "start",
+								"event": "not_ready_to_start"
+							}
+						],
+						"random": false
+					},
+					"hide": true
+				}
+			],
+			"next_events": [
+				{
+					"event": "not_ready_to_start",
+					"keys": [
+						"не готов",
+						"не хочу",
+						"не буду",
+						"не",
+						"нет",
+						"ни за что",
+						"не знаю",
+						"не уверен",
+						"подумать",
+						"погоди"
+					]
+				},
+				{
+					"event": "ready_to_start",
+					"keys": [
+						"начинаем",
+						"готов",
+						"поехали",
+						"ладно",
+						"погнали",
+						"го",
+						"давай",
+						"нач",
+						"да",
+						"отлично",
+						"хочу",
+						"вперёд",
+						"так точно",
+						"игр"
+					]
+				},
+				{
+					"event": "misunderstanding",
+					"keys": []
+				}
+			],
+			"items": [],
+			"stats": {
+				"reputation": 0,
+				"mood": 0,
+				"karma": 0
+			},
+			"last_event": false,
+			"yes_or_not": true
+		}
   },
   "next_chapter": "chapter_1"
 }
