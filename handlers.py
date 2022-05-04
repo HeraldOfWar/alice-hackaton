@@ -90,13 +90,19 @@ def data_handler(chapter):
 
 
 def intent_handler(res, intent):
-    data = data_handler('commands')
     if intent == 'return_game':
+        if res['user_state_update']['event'] == 'rules_1':
+            res['user_state_update']['event'] = 'rules_2'
+        if res['user_state_update']['event'] == 'rules_2':
+            res['user_state_update']['event'] = 'rules_3'
+        if res['user_state_update']['event'] == 'rules_3':
+            res['user_state_update']['event'] = 'plot'
         data = data_handler(res['user_state_update']['chapter'])
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
         return res
+    data = data_handler('commands')
     if intent == 'stats':
         if res['user_state_update']['event'] == 'rules_2':
             res['user_state_update']['event'] = 'rules_3'
