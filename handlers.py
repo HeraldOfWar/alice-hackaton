@@ -77,9 +77,9 @@ def intent_handler(res, intent):
     if intent == 'return_game':
         if res['user_state_update']['event'] == 'rules_1':
             res['user_state_update']['event'] = 'rules_2'
-        if res['user_state_update']['event'] == 'rules_2':
+        elif res['user_state_update']['event'] == 'rules_2':
             res['user_state_update']['event'] = 'rules_3'
-        if res['user_state_update']['event'] == 'rules_3':
+        elif res['user_state_update']['event'] == 'rules_3':
             res['user_state_update']['event'] = 'plot'
         data = data_handler(res['user_state_update']['chapter'])
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
