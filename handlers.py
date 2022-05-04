@@ -88,18 +88,14 @@ def intent_handler(res, intent):
         return res
     data = data_handler('commands')
     if intent == 'stats':
-        if res['user_state_update']['event'] == 'rules_2':
-            res['user_state_update']['event'] = 'rules_3'
         res['response']['text'] = f'Твои показатели:\n\nОтношения с командой: ' \
                                   f'{REPUTATION[res["user_state_update"]["reputation"]]} ' \
-                                  f'({res["user_state_update"]["reputation"]})\nМоральное состояние:' \
+                                  f'({res["user_state_update"]["reputation"]})\nМоральное состояние: ' \
                                   f'{MOOD[res["user_state_update"]["mood"]]} ({res["user_state_update"]["mood"]})' \
                                   f'\nКарма: {KARMA[res["user_state_update"]["karma"]]} ' \
                                   f'({res["user_state_update"]["karma"]})\n\nДля продолжения скажите ' \
                                   f'\"Продолжить\".'
     elif intent == 'inventory':
-        if res['user_state_update']['event'] == 'rules_3':
-            res['user_state_update']['event'] = 'plot'
         if res['user_state_update']['items']:
             res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}' \
                                       f'\n\nДля продолжения скажите \"Продолжить\".'
