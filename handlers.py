@@ -127,7 +127,7 @@ def answer_handler(req, events, text):
         return req['state']['user']['event']
     for event in events['next_events']:
         for word in event['keys']:
-            if word in text:
+            if word in text.lower():
                 return event['event']
     for event in events['next_events']:
         if 'misunderstanding' in event['event']:
