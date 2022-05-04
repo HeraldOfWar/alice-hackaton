@@ -33,7 +33,8 @@ def dialog_handler(req, res):
             req['state']['user']['chapter'] != 'start':
         res['user_state_update'] = req['state']['user'].copy()
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
-    elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] in intents:
+    elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] in intents and \
+            list(req['request']['nlu']['intents'].keys())[0] != 'rules':
         res['user_state_update'] = req['state']['user'].copy()
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
     else:
