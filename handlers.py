@@ -7,8 +7,7 @@ MOOD = {-3: 'Cуицидальные наклонности', -2: 'Паниче�
         1: 'Отличное', 2: 'Счастье', 3: 'Абсолютная гармония'}
 KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негативная', 0: 'Чистая',
          1: 'Позитивная', 2: 'Ангельская', 3: 'Божественная'}
-intents = ['YANDEX.HELP', 'YANDEX.CONFIRM', 'YANDEX.REJECT',
-           'description', 'inventory', 'stats', 'story', 'rules']
+intents = ['YANDEX.HELP', 'YANDEX.REJECT', 'description', 'inventory', 'stats', 'story', 'rules', 'return_game']
 
 
 def dialog_handler(req, res):
@@ -30,6 +29,10 @@ def dialog_handler(req, res):
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
         return res
+    elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'rules' and \
+            req['state']['user']['chapter'] != 'start':
+        res['user_state_update'] = req['state']['user'].copy()
+        return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
     elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] in intents:
         res['user_state_update'] = req['state']['user'].copy()
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
@@ -72,21 +75,33 @@ def data_handler(chapter):
 
 def intent_handler(res, intent):
     data = data_handler('commands')
-    if res['user_state_update']['chapter'] != 'start':
-        if intent == 'stats':
-            res['response']['text'] = f'Отношения с командой: {REPUTATION[res["user_state_update"]["reputation"]]}' \
-                                      f' ({res["user_state_update"]["reputation"]})'
-        elif intent == 'inventory':
-            if res['user_state_update']['items']:
-                res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}'
-            else:
-                res['response']['text'] = 'Пока что у вас ничего нет!'
+    if intent == 'return_game':
+        data = data_handler(res['user_state_update']['chapter'])
+        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        res['response']['tts'] = res['response']['text']
+        res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+        return res
+    if intent == 'stats':
+        if res['user_state_update']['event'] == 'rules_2':
+            res['user_state_update']['event'] = 'rules_3'
+        res['response']['text'] = f'Твои показатели:\n\nОтношения с командой: ' \
+                                  f'{REPUTATION[res["user_state_update"]["reputation"]]} ' \
+                                  f'({res["user_state_update"]["reputation"]})\nМоральное состояние:' \
+                                  f'{MOOD[res["user_state_update"]["mood"]]} ({res["user_state_update"]["mood"]})' \
+                                  f'\nКарма: {KARMA[res["user_state_update"]["karma"]]} ' \
+                                  f'({res["user_state_update"]["karma"]})\n\nДля продолжения скажите ' \
+                                  f'\"Продолжить\".'
+    elif intent == 'inventory':
+        if res['user_state_update']['items']:
+            res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}' \
+                                      f'\n\nДля продолжения скажите \"Продолжить\".'
         else:
-            res['response']['text'] = data[intent]['text']
-        res['response']['buttons'] = data[intent]['buttons']
-        return res
+            res['response']['text'] = 'Пока что у вас ничего нет!\n\nДля продолжения скажите \"Продолжить\".'
     else:
-        return res
+        res['response']['text'] = f"{data[intent]['text']}\n\nДля продолжения скажите \"Продолжить\""
+    res['response']['tts'] = res['response']['text']
+    res['response']['buttons'] = data[intent]['buttons']
+    return res
 
 
 def answer_handler(req, events, text):
