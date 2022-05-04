@@ -93,6 +93,8 @@ def intent_handler(res, intent):
                                   f'({res["user_state_update"]["karma"]})\n\nДля продолжения скажите ' \
                                   f'\"Продолжить\".'
     elif intent == 'inventory':
+        if res['user_state_update']['event'] == 'rules_2':
+            res['user_state_update']['event'] = 'rules_3'
         if res['user_state_update']['items']:
             res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}' \
                                       f'\n\nДля продолжения скажите \"Продолжить\".'
