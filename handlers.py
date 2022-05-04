@@ -23,7 +23,7 @@ def dialog_handler(req, res):
             }
             data = data_handler('start')
             res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-        elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'YANDEX.REAPET':
+        elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'YANDEX.REPEAT':
             data = data_handler(req['state']['user']['chapter'])
             res['user_state_update'] = req['state']['user'].copy()
             res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
