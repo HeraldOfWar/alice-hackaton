@@ -14,7 +14,7 @@ def dialog_handler(req, res):
     try:
         if not req['state']['user']:
             return start_handler(res)
-        if req['request']['nlu']['intents'] and 'YANDEX.REAPET' in list(req['request']['nlu']['intents'].keys()):
+        if req['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(req['request']['nlu']['intents'].keys()):
             return repeat_handler(res, req)
         if req['request']['nlu']['intents'] and 'rules' in list(req['request']['nlu']['intents'].keys()) and \
                 req['state']['user']['chapter'] != 'start':
