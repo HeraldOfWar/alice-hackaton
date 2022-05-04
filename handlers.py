@@ -11,19 +11,24 @@ intents = ['YANDEX.HELP', 'description', 'inventory', 'stats', 'story', 'rules',
 
 
 def dialog_handler(req, res):
+
     if not req['state']['user']:
         return start_handler(res)
+
     if req['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(req['request']['nlu']['intents'].keys()):
         return repeat_handler(res, req)
+
     if req['request']['nlu']['intents'] and 'rules' in list(req['request']['nlu']['intents'].keys()) and \
             req['state']['user']['chapter'] != 'start':
         res['user_state_update'] = req['state']['user'].copy()
         return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
+
     if req['request']['nlu']['intents'] and 'rules' not in list(req['request']['nlu']['intents'].keys()):
         for key in list(req['request']['nlu']['intents'].keys()):
             if key in intents:
                 res['user_state_update'] = req['state']['user'].copy()
                 return intent_handler(res, key)
+
     res['user_state_update'] = req['state']['user'].copy()
     data = data_handler(req['state']['user']['chapter'])
     if req['request']['type'] == 'ButtonPressed':
@@ -38,15 +43,19 @@ def dialog_handler(req, res):
         'reputation']
     res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
     res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
+
     for item in data['events'][res['user_state_update']['event']]['items']:
         res['user_state_update']['items'].append(item)
-    if data['events'][res['user_state_update']['event']]['text'] == req['request']['original_utterance'] and req['session']['message_id']:
+
+    if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
         res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
                                   f"{data['events'][res['user_state_update']['event']]['text']}"
     else:
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+
     return res
 
 
