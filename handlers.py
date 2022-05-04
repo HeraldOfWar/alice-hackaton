@@ -13,58 +13,37 @@ intents = ['YANDEX.HELP', 'YANDEX.REJECT', 'description', 'inventory', 'stats', 
 def dialog_handler(req, res):
     try:
         if not req['state']['user']:
-            res['user_state_update'] = {
-                'chapter': 'start',
-                'event': 'greeting',
-                'reputation': 0,
-                'mood': 0,
-                'karma': 0,
-                'items': []
-            }
-            data = data_handler('start')
-            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-        elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'YANDEX.REAPET':
-            data = data_handler(req['state']['user']['chapter'])
-            res['user_state_update'] = req['state']['user'].copy()
-            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-            res['response']['tts'] = res['response']['text']
-            res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
-            return res
-        elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] == 'rules' and \
+            return start_handler(res)
+        if req['request']['nlu']['intents'] and 'YANDEX.REAPET' in list(req['request']['nlu']['intents'].keys()):
+            return repeat_handler(res, req)
+        if req['request']['nlu']['intents'] and 'rules' in list(req['request']['nlu']['intents'].keys()) and \
                 req['state']['user']['chapter'] != 'start':
             res['user_state_update'] = req['state']['user'].copy()
             return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
-        elif req['request']['nlu']['intents'] and list(req['request']['nlu']['intents'].keys())[0] in intents and \
-                list(req['request']['nlu']['intents'].keys())[0] != 'rules':
-            res['user_state_update'] = req['state']['user'].copy()
-            return intent_handler(res, list(req['request']['nlu']['intents'].keys())[0])
+        if req['request']['nlu']['intents'] and 'rules' not in list(req['request']['nlu']['intents'].keys()):
+            for key in list(req['request']['nlu']['intents'].keys()):
+                if key in intents:
+                    res['user_state_update'] = req['state']['user'].copy()
+                    return intent_handler(res, key)
+        res['user_state_update'] = req['state']['user'].copy()
+        data = data_handler(req['state']['user']['chapter'])
+        if req['request']['type'] == 'ButtonPressed':
+            res = button_handler(res, req, data)
         else:
-            res['user_state_update'] = req['state']['user'].copy()
-            data = data_handler(req['state']['user']['chapter'])
-            if req['request']['type'] == 'ButtonPressed':
-                if data['events'][req['state']['user']['event']]['last_event']:
-                    res['user_state_update']['event'] = data['events'][req['state']['user']['event']]['next_events'][0][
-                        'event']
-                    data = data_handler(data['next_chapter'])
-                elif not req['request']['payload']['random']:
-                    res['user_state_update']['event'] = req['request']['payload']['next_event'][0]['event']
-                else:
-                    res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
-            else:
-                res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
-                                                                   req['request']['original_utterance'])
+            res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
+                                                               req['request']['original_utterance'])
 
-            res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
-                'reputation']
-            res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
-            res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
-            for item in data['events'][res['user_state_update']['event']]['items']:
-                res['user_state_update']['items'].append(item)
-            if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
-                res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
-                                          f"{data['events'][res['user_state_update']['event']]['text']}"
-            else:
-                res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
+            'reputation']
+        res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
+        res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
+        for item in data['events'][res['user_state_update']['event']]['items']:
+            res['user_state_update']['items'].append(item)
+        if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
+            res['response']['text'] = f"Прошу прощения, ответьте конкретнее.\n\n" \
+                                      f"{data['events'][res['user_state_update']['event']]['text']}"
+        else:
+            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
         return res
@@ -84,9 +63,18 @@ def dialog_handler(req, res):
         return res
 
 
-def data_handler(chapter):
-    with open(f'data/events/{chapter}.json') as json_file:
-        return json.load(json_file)
+def start_handler(res):
+    res['user_state_update'] = {
+        'chapter': 'start',
+        'event': 'greeting',
+        'reputation': 0,
+        'mood': 0,
+        'karma': 0,
+        'items': []
+    }
+    data = data_handler('start')
+    res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+    return res
 
 
 def intent_handler(res, intent):
@@ -128,6 +116,20 @@ def intent_handler(res, intent):
     return res
 
 
+def button_handler(res, req, data):
+    if data['events'][req['state']['user']['event']]['last_event']:
+        res['user_state_update']['event'] = data['events'][req['state']['user']['event']]['next_events'][0][
+            'event']
+        data = data_handler(data['next_chapter'])
+    elif not req['request']['payload']['random']:
+        res['user_state_update']['event'] = req['request']['payload']['next_event'][0]['event']
+    else:
+        res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
+    res['response']['tts'] = res['response']['text']
+    res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+    return res
+
+
 def answer_handler(req, events, text):
     if not text:
         return req['state']['user']['event']
@@ -139,3 +141,17 @@ def answer_handler(req, events, text):
         if 'misunderstanding' in event['event']:
             return event['event']
     return req['state']['user']['event']
+
+
+def repeat_handler(res, req):
+    data = data_handler(req['state']['user']['chapter'])
+    res['user_state_update'] = req['state']['user'].copy()
+    res['response']['text'] = ""
+    res['response']['tts'] = data['events'][res['user_state_update']['event']]['text']
+    res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+    return res
+
+
+def data_handler(chapter):
+    with open(f'data/events/{chapter}.json') as json_file:
+        return json.load(json_file)
