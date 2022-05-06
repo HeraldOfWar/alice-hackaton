@@ -9,50 +9,62 @@ MOOD = {-3: 'Cуицидальные наклонности', -2: 'Паниче�
 KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негативная', 0: 'Чистая',
          1: 'Позитивная', 2: 'Ангельская', 3: 'Божественная'}
 # список интентов для обработки
-intents = ['YANDEX.HELP', 'description', 'inventory', 'stats', 'story', 'rules', 'return_game']
+intents = ['YANDEX.HELP', 'description', 'inventory', 'stats',
+           'story', 'rules', 'return_game', 'YANDEX.WHAT_CAN_YOU_DO', 'restart']
 sessionStorage = {}  # словарь для хранения последнего ответа игроку
 
 
 def dialog_handler(req, res):
-    """Основной обработчик запросов пользователя и ответов, принимает на вход request и возвращает response"""
+    """Основной обработчик запросов пользователя и ответов сервера, принимает на вход request и возвращает response"""
     try:
+
         # если пользователь первый раз в игре
         if not req['state']['user']:
             res = start_handler(res)  # запускаем обработчик start_handler() для приветствия
-            sessionStorage[req['session']['user']['user_id']] = res
+            sessionStorage[req['session']['user']['user_id']] = 'greeting'
             return res
+
         # если пользователь просит повторить сообщение
         if req['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(req['request']['nlu']['intents'].keys()):
             res = repeat_handler(res, req)  # запускаем обработчик repeat_handler() для повторения
-            sessionStorage[req['session']['user']['user_id']] = res
+            sessionStorage[req['session']['user']['user_id']] = 'repeat'
             return res
+
         # если сработал интент
         if req['request']['nlu']['intents']:
             for key in list(req['request']['nlu']['intents'].keys()):
                 if key in intents:  # ищем подходящий интент из списка
-                    res['user_state_update'] = req['state']['user'].copy()
-                    res = intent_handler(res, key)  # запускаем обработчик intent_handler() для ответа на команду
-                    sessionStorage[req['session']['user']['user_id']] = res
-                    return res
+                    if key != 'return_game' or sessionStorage[req['session']['user']['user_id']] == 'command':
+                        res['user_state_update'] = req['state']['user'].copy()
+                        res = intent_handler(res, req,
+                                             key)  # запускаем обработчик intent_handler() для ответа на команду
+                        return res
 
         res['user_state_update'] = req['state']['user'].copy()
         data = data_handler(req['state']['user']['chapter'])
+
         if req['request']['type'] == 'ButtonPressed':  # если пользователь нажал на кнопку
             res = button_handler(res, req)  # запускаем обработчик button_handler() для ответа на кнопку
             if data['events'][req['state']['user']['event']]['last_event']:
                 data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+
         else:  # если пользователь отправил сообщение
             # запускаем обработчик текста пользователя answer_handler()
             res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
                                                                req['request']['original_utterance'])
+            if data['events'][req['state']['user']['event']]['last_event']:
+                data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+
         # обновляем характеристики
         res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
             'reputation']
         res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
         res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
+
         # обновляем инвентарь
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
+
         # возвращаем текст события
         if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
             # обработка непонятного запроса
@@ -63,8 +75,9 @@ def dialog_handler(req, res):
         res['response']['tts'] = res['response']['text']  # голос
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']  # кнопки
 
-        sessionStorage[req['session']['user']['user_id']] = res
+        sessionStorage[req['session']['user']['user_id']] = 'event'
         return res
+
     except Exception:  # если возникла непредвиденная ошибка
         return start_handler(res)  # возвращаемся в самое начало (временный костыль)
 
@@ -87,23 +100,22 @@ def start_handler(res):
     return res
 
 
-def intent_handler(res, intent):
+def intent_handler(res, req, intent):
     """Обработчик интентов"""
     if intent == 'return_game':  # воозвращение к основной ветке событий
-        if res['user_state_update']['event'] == 'rules_1':
-            res['user_state_update']['event'] = 'rules_2'
-        elif res['user_state_update']['event'] == 'rules_2':
-            res['user_state_update']['event'] = 'rules_3'
-        elif res['user_state_update']['event'] == 'rules_3':
-            res['user_state_update']['event'] = 'plot'
-        elif res['user_state_update']['event'] == 'greeting':
-            res['user_state_update']['event'] = 'ready_to_start'
         data = data_handler(res['user_state_update']['chapter'])
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
         return res
+    if intent == 'rules' and res['user_state_update']['event'] == 'start':
+        data = data_handler('start')
+        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        res['response']['tts'] = res['response']['text']
+        res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+        return res
     data = data_handler('commands')
+    sessionStorage[req['session']['user']['user_id']] = 'command'
     if intent == 'stats':  # обработка запроса "Мои показатели"
         res['response']['text'] = f'Твои показатели:\n\nОтношения с командой: ' \
                                   f'{REPUTATION[res["user_state_update"]["reputation"]]} ' \
