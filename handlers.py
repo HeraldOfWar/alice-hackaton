@@ -110,7 +110,7 @@ def intent_handler(res, req, intent):
         return res
     if intent == 'rules' and res['user_state_update']['chapter'] == 'start':
         data = data_handler('start')
-        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+        res['response']['text'] = data['events']['rules_1']['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
         return res
