@@ -98,6 +98,14 @@ def start_handler(res):
 def intent_handler(res, req, intent):
     """Обработчик интентов"""
     if intent == 'return_game':  # воозвращение к основной ветке событий
+        if res['user_state_update']['event'] == 'rules_1':
+            res['user_state_update']['event'] = 'rules_2'
+        elif res['user_state_update']['event'] == 'rules_2':
+            res['user_state_update']['event'] = 'rules_3'
+        elif res['user_state_update']['event'] == 'rules_3':
+            res['user_state_update']['event'] = 'plot'
+        elif res['user_state_update']['event'] == 'greeting':
+            res['user_state_update']['event'] = 'ready_to_start'
         data = data_handler(res['user_state_update']['chapter'])
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
