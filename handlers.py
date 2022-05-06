@@ -10,7 +10,7 @@ KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негатив
          1: 'Позитивная', 2: 'Ангельская', 3: 'Божественная'}
 # список интентов для обработки
 intents = ['YANDEX.HELP', 'description', 'inventory', 'stats', 'story', 'rules', 'return_game']
-sessionStorage = {} # словарь для хранения последнего ответа игроку
+sessionStorage = {}  # словарь для хранения последнего ответа игроку
 
 
 def dialog_handler(req, res):
@@ -66,7 +66,7 @@ def dialog_handler(req, res):
         sessionStorage[req['session']['user']['user_id']] = res
         return res
     except Exception:  # если возникла непредвиденная ошибка
-        return start_handler(res) # возвращаемся в самое начало (временный костыль)
+        return start_handler(res)  # возвращаемся в самое начало (временный костыль)
 
 
 def start_handler(res):
@@ -118,7 +118,7 @@ def intent_handler(res, intent):
                                       f'\n\nДля продолжения скажите \"Продолжить\".'
         else:  # если нет вещей
             res['response']['text'] = 'Пока что у вас ничего нет!\n\nДля продолжения скажите \"Продолжить\".'
-    else: # обработка всех остальных ивентов
+    else:  # обработка всех остальных ивентов
         res['response']['text'] = f"{data[intent]['text']}\n\nДля продолжения скажите \"Продолжить\""
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data[intent]['buttons']
