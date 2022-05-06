@@ -107,7 +107,7 @@ def intent_handler(res, req, intent):
         data = data_handler('start')
         res['response']['text'] = data['events']['rules_1']['text']
         res['response']['tts'] = res['response']['text']
-        res['response']['buttons'] = data['events'][res['rules_1']]['buttons']
+        res['response']['buttons'] = data['events']['rules_1']['buttons']
         sessionStorage[req['session']['user']['user_id']] = 'greeting'
         return res
     data = data_handler('commands')
