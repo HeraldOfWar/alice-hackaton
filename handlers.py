@@ -102,6 +102,7 @@ def intent_handler(res, req, intent):
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
         res['response']['tts'] = res['response']['text']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+        sessionStorage[req['session']['user']['user_id']] = 'event'
         return res
     if intent == 'rules' and res['user_state_update']['chapter'] == 'start':
         data = data_handler('start')
