@@ -53,7 +53,7 @@ def dialog_handler(req, res):
         # обновляем инвентарь
         for item in data['events'][res['user_state_update']['event']]['items']:
             res['user_state_update']['items'].append(item)
-        # возвращаем текс события
+        # возвращаем текст события
         if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
             # обработка непонятного запроса
             res['response']['text'] = 'Прошу прощения, ответьте конкретнее.'
