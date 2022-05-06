@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 # Внутри функции доступен request.json - это JSON,
 # который отправила нам Алиса в запросе POST
 def main():
-    logging.info(f'Request: {request.json!r}')
+    logging.info(f'Request: {request.json!r}')  # лог запроса
 
     # Начинаем формировать ответ, согласно документации
     # мы собираем словарь, который потом при помощи
@@ -35,12 +35,12 @@ def main():
         }
     }
 
-    # Отправляем request.json и response в функцию handle_dialog.
+    # Отправляем request.json и response в функцию dialog_handler.
     # Она сформирует оставшиеся поля JSON, которые отвечают
     # непосредственно за ведение диалога
     response = dialog_handler(request.json, response)
 
-    logging.info(f'Response:  {response!r}')
+    logging.info(f'Response:  {response!r}')  # лог ответа
 
     return response
 
