@@ -11,70 +11,77 @@ KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негатив
 # список интентов для обработки
 intents = ['YANDEX.HELP', 'description', 'inventory', 'stats',
            'story', 'rules', 'return_game', 'YANDEX.WHAT_CAN_YOU_DO', 'restart']
-sessionStorage = {}  # словарь для хранения последнего ответа игроку
 
 
-def dialog_handler(req, res):
+def dialog_handler(event, context):
     """Основной обработчик запросов пользователя и ответов сервера, принимает на вход request и возвращает response"""
-    # если пользователь первый раз в игре
-    if not req['state']['user']:
-        res = start_handler(res)  # запускаем обработчик start_handler() для приветствия
-        sessionStorage[req['session']['user']['user_id']] = 'greeting'
+    res = {
+        'session': event['session'],
+        'version': event['version'],
+        'response': {
+            'end_session': False
+        }
+    }
+    try:
+        # если пользователь первый раз в игре
+        if not event['state']['user']:
+            return start_handler(res)  # запускаем обработчик start_handler() для приветстви
+
+        # если пользователь просит повторить сообщение
+        if event['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(event['request']['nlu']['intents'].keys()):
+            return repeat_handler(res, event)  # запускаем обработчик repeat_handler() для повторения
+
+        # если сработал интент
+        if event['request']['nlu']['intents']:
+            for key in list(event['request']['nlu']['intents'].keys()):
+                if key in intents:  # ищем подходящий интент из списка
+                    if key != 'return_game' or event['state']['user']['last_response'] == 'command':
+                        res['user_state_update'] = event['state']['user'].copy()
+                        return intent_handler(res, event,
+                                              key)  # запускаем обработчик intent_handler() для ответа на команду
+
+        res['user_state_update'] = event['state']['user'].copy()
+        data = data_handler(event['state']['user']['chapter'])
+
+        if event['request']['type'] == 'ButtonPressed':  # если пользователь нажал на кнопку
+            res = button_handler(res, event)  # запускаем обработчик button_handler() для ответа на кнопку
+            if data['events'][event['state']['user']['event']]['last_event']:
+                data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+
+        else:  # если пользователь отправил сообщение
+            # запускаем обработчик текста пользователя answer_handler()
+            res['user_state_update']['event'] = answer_handler(event, data['events'][event['state']['user']['event']],
+                                                               event['request']['original_utterance'].lower())
+            if data['events'][event['state']['user']['event']]['last_event']:
+                data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+
+        # обновляем характеристики
+        res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
+            'reputation']
+        res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
+        res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
+
+        # обновляем инвентарь
+        for item in data['events'][res['user_state_update']['event']]['items']:
+            res['user_state_update']['items'].append(item)
+
+        # возвращаем текст события
+        if res['user_state_update']['event'] == event['state']['user']['event'] and event['session']['message_id']:
+            # обработка непонятного запроса
+            res['response']['text'] = 'Прошу прощения, ответьте конкретнее.'
+            res['response']['tts'] = res['response']['text']
+        else:
+            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+            res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']  # голос
+        res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']  # кнопки
+        if data['events'][res['user_state_update']['event']]['card']:
+            res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
+        res['user_state_update']['last_response'] = 'event'
+
         return res
-
-    # если пользователь просит повторить сообщение
-    if req['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(req['request']['nlu']['intents'].keys()):
-        res = repeat_handler(res, req)  # запускаем обработчик repeat_handler() для повторения
-        sessionStorage[req['session']['user']['user_id']] = 'repeat'
-        return res
-
-    # если сработал интент
-    if req['request']['nlu']['intents']:
-        for key in list(req['request']['nlu']['intents'].keys()):
-            if key in intents:  # ищем подходящий интент из списка
-                if key != 'return_game' or sessionStorage[req['session']['user']['user_id']] == 'command':
-                    res['user_state_update'] = req['state']['user'].copy()
-                    res = intent_handler(res, req,
-                                         key)  # запускаем обработчик intent_handler() для ответа на команду
-                    return res
-
-    res['user_state_update'] = req['state']['user'].copy()
-    data = data_handler(req['state']['user']['chapter'])
-
-    if req['request']['type'] == 'ButtonPressed':  # если пользователь нажал на кнопку
-        res = button_handler(res, req)  # запускаем обработчик button_handler() для ответа на кнопку
-        if data['events'][req['state']['user']['event']]['last_event']:
-            data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
-
-    else:  # если пользователь отправил сообщение
-        # запускаем обработчик текста пользователя answer_handler()
-        res['user_state_update']['event'] = answer_handler(req, data['events'][req['state']['user']['event']],
-                                                           req['request']['original_utterance'])
-        if data['events'][req['state']['user']['event']]['last_event']:
-            data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
-
-    # обновляем характеристики
-    res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
-        'reputation']
-    res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
-    res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
-
-    # обновляем инвентарь
-    for item in data['events'][res['user_state_update']['event']]['items']:
-        res['user_state_update']['items'].append(item)
-
-    # возвращаем текст события
-    if res['user_state_update']['event'] == req['state']['user']['event'] and req['session']['message_id']:
-        # обработка непонятного запроса
-        res['response']['text'] = 'Прошу прощения, ответьте конкретнее.'
-    else:
-        res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-
-    res['response']['tts'] = res['response']['text']  # голос
-    res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']  # кнопки
-
-    sessionStorage[req['session']['user']['user_id']] = 'event'
-    return res
+    except Exception:
+        print('error')
+        return start_handler(res)
 
 
 def start_handler(res):
@@ -85,12 +92,15 @@ def start_handler(res):
         'reputation': 0,
         'mood': 0,
         'karma': 0,
-        'items': []
+        'items': [],
+        'last_response': 'greeting'
     }
     data = data_handler('start')
     res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-    res['response']['tts'] = res['response']['text']
+    res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+    if data['events'][res['user_state_update']['event']]['card']:
+        res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
 
     return res
 
@@ -100,27 +110,35 @@ def intent_handler(res, req, intent):
     if intent == 'return_game':  # воозвращение к основной ветке событий
         if res['user_state_update']['event'] == 'rules_1':
             res['user_state_update']['event'] = 'rules_2'
+            res['user_state_update']['last_response'] = 'greeting'
         elif res['user_state_update']['event'] == 'rules_2':
             res['user_state_update']['event'] = 'rules_3'
+            res['user_state_update']['last_response'] = 'greeting'
         elif res['user_state_update']['event'] == 'rules_3':
             res['user_state_update']['event'] = 'plot'
+            res['user_state_update']['last_response'] = 'greeting'
         elif res['user_state_update']['event'] == 'greeting':
             res['user_state_update']['event'] = 'ready_to_start'
+            res['user_state_update']['last_response'] = 'greeting'
         data = data_handler(res['user_state_update']['chapter'])
         res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
-        res['response']['tts'] = res['response']['text']
+        res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
-        sessionStorage[req['session']['user']['user_id']] = 'event'
+        if data['events'][res['user_state_update']['event']]['card']:
+            res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
+        res['user_state_update']['last_response'] = 'event'
         return res
     if intent == 'rules' and res['user_state_update']['chapter'] == 'start':
         data = data_handler('start')
+        res['user_state_update']['event'] == 'rules_1'
         res['response']['text'] = data['events']['rules_1']['text']
-        res['response']['tts'] = res['response']['text']
+        res['response']['tts'] = data['events']['rules_1']['tts']
         res['response']['buttons'] = data['events']['rules_1']['buttons']
-        sessionStorage[req['session']['user']['user_id']] = 'greeting'
+        if data['events']['rules_1']['card']:
+            res['response']['card'] = data['events']['rules_1']['card']
         return res
     data = data_handler('commands')
-    sessionStorage[req['session']['user']['user_id']] = 'command'
+    res['user_state_update']['last_response'] = 'command'
     if intent == 'stats':  # обработка запроса "Мои показатели"
         res['response']['text'] = f'Твои показатели:\n\nОтношения с командой: ' \
                                   f'{REPUTATION[res["user_state_update"]["reputation"]]} ' \
@@ -139,6 +157,8 @@ def intent_handler(res, req, intent):
         res['response']['text'] = f"{data[intent]['text']}\n\nДля продолжения скажите \"Продолжить\""
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data[intent]['buttons']
+    if data[intent]['card']:
+        res['response']['card'] = data[intent]['card']
     return res
 
 
@@ -157,7 +177,7 @@ def answer_handler(req, events, text):
         return req['state']['user']['event']
     for event in events['next_events']:  # поиск ключевых слов в тексте
         for word in event['keys']:
-            if word in text.lower():
+            if word in text:
                 return event['event']
     for event in events['next_events']:  # если среди следующий событий есть "не понимаю"
         if 'misunderstanding' in event['event']:
@@ -169,9 +189,11 @@ def repeat_handler(res, req):
     """Обработчик повторения"""
     data = data_handler(req['state']['user']['chapter'])
     res['user_state_update'] = req['state']['user'].copy()
-    res['response']['text'] = ""  # текста нет, только кнопки и голос
-    res['response']['tts'] = data['events'][res['user_state_update']['event']]['text']
+    res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+    res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+    if data['events'][res['user_state_update']['event']]['card']:
+        res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
     return res
 
 
