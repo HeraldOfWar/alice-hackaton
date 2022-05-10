@@ -44,16 +44,17 @@ def dialog_handler(event, context):
         data = data_handler(event['state']['user']['chapter'])
 
         if event['request']['type'] == 'ButtonPressed':  # если пользователь нажал на кнопку
-            res = button_handler(res, event)  # запускаем обработчик button_handler() для ответа на кнопку
-            if data['events'][event['state']['user']['event']]['last_event']:
-                data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+            # запускаем обработчик button_handler() для ответа на кнопку
+            res['user_state_update']['event'] = button_handler(event)
 
         else:  # если пользователь отправил сообщение
             # запускаем обработчик текста пользователя answer_handler()
             res['user_state_update']['event'] = answer_handler(event, data['events'][event['state']['user']['event']],
                                                                event['request']['original_utterance'].lower())
-            if data['events'][event['state']['user']['event']]['last_event']:
-                data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
+
+        if data['events'][event['state']['user']['event']]['last_event']:
+            res['user_state_update']['chapter'] = data['next_chapter']
+            data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
 
         # обновляем характеристики
         res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
@@ -63,7 +64,7 @@ def dialog_handler(event, context):
 
         # обновляем инвентарь
         for item in data['events'][res['user_state_update']['event']]['items']:
-            res['user_state_update']['items'].append(item)
+            res['user_state_update']['items'].extend(item)
 
         # возвращаем текст события
         if res['user_state_update']['event'] == event['state']['user']['event'] and event['session']['message_id']:
@@ -130,7 +131,7 @@ def intent_handler(res, req, intent):
         return res
     if intent == 'rules' and res['user_state_update']['chapter'] == 'start':
         data = data_handler('start')
-        res['user_state_update']['event'] == 'rules_1'
+        res['user_state_update']['event'] = 'rules_1'
         res['response']['text'] = data['events']['rules_1']['text']
         res['response']['tts'] = data['events']['rules_1']['tts']
         res['response']['buttons'] = data['events']['rules_1']['buttons']
@@ -147,41 +148,61 @@ def intent_handler(res, req, intent):
                                   f'\nКарма: {KARMA[res["user_state_update"]["karma"]]} ' \
                                   f'({res["user_state_update"]["karma"]})\n\nДля продолжения скажите ' \
                                   f'\"Продолжить\".'
+        res['response']['card'] = data[intent]['card']
+        res['response']['card']['description'] = res['response']['text'][18:]
     elif intent == 'inventory':  # обработка запроса "Мой инвентарь"
         if res['user_state_update']['items']:  # если есть вещи
-            res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}' \
+            res['response']['text'] = f'В вашем распоряжении {", ".join(list(res["user_state_update"]["items"]))}.' \
                                       f'\n\nДля продолжения скажите \"Продолжить\".'
         else:  # если нет вещей
             res['response']['text'] = 'Пока что у вас ничего нет!\n\nДля продолжения скажите \"Продолжить\".'
+        res['response']['card'] = data[intent]['card']
+        res['response']['card']['description'] = res['response']['text']
     else:  # обработка всех остальных ивентов
         res['response']['text'] = f"{data[intent]['text']}\n\nДля продолжения скажите \"Продолжить\""
+        if data[intent]['card']:
+            res['response']['card'] = data[intent]['card']
+            if (intent == 'YANDEX.HELP' or intent == 'YANDEX.WHAT_CAN_YOU_DO') and \
+                    res['user_state_update']['chapter'] == 'start':
+                res['response']['card']['items'] = res['response']['card']['items'][:-1]
     res['response']['tts'] = res['response']['text']
     res['response']['buttons'] = data[intent]['buttons']
-    if data[intent]['card']:
-        res['response']['card'] = data[intent]['card']
     return res
 
 
-def button_handler(res, req):
+def button_handler(req):
     """Обработка кнопок"""
-    if not req['request']['payload']['random']:  # если следующее событие конкретное
-        res['user_state_update']['event'] = req['request']['payload']['next_event'][0]['event']
+    if req['request']['payload']['random']:  # если следующее событие конкретное
+        return random.choice(req['request']['payload']['next_event'])['event']
     else:  # если следующее событие случайное
-        res['user_state_update']['event'] = random.choice(req['request']['payload']['next_event'])['event']
-    return res
+        return req['request']['payload']['next_event'][0]['event']
 
 
 def answer_handler(req, events, text):
     """Обработка текстового запроса пользователя"""
     if not text:  # пустое сообщение
         return req['state']['user']['event']
-    for event in events['next_events']:  # поиск ключевых слов в тексте
-        for word in event['keys']:
-            if word in text:
+    if req['state']['user']['chapter'] == 'start':
+        for event in events['next_events']:  # поиск ключевых слов в тексте
+            if not event['keys']:
                 return event['event']
-    for event in events['next_events']:  # если среди следующий событий есть "не понимаю"
-        if 'misunderstanding' in event['event']:
-            return event['event']
+            for word in event['keys']:
+                if word in text:
+                    return event['event']
+    for event in events['next_events']:
+        if not event['random']:
+            if not event['keys']:
+                return event['event']
+            for word in event['keys']:
+                if word in text:
+                    return event['event']
+        else:
+            if not event['keys']:
+                return random.choice(event['event'])
+            for word in event['keys']:
+                if word in text:
+                    return random.choice(event['event'])
+
     return req['state']['user']['event']  # непонятный ответ
 
 
