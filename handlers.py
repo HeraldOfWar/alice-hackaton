@@ -11,6 +11,14 @@ KARMA = {-3: 'Демоническая', -2: 'Дурная', -1: 'Негатив
 # список интентов для обработки
 intents = ['YANDEX.HELP', 'description', 'inventory', 'stats',
            'story', 'rules', 'return_game', 'YANDEX.WHAT_CAN_YOU_DO', 'restart']
+MISUNDERSTANDING = [
+    "Прошу прощения, ответьте конкретнее.",
+    "Я Вас совсем не понимаю. Пожалуйста, ответьте точнее.",
+    "Простите, не расслышал. Повторите, пожалуйста.",
+    "Команда не распознана! Прошу, дайте более чёткий ответ.",
+    "Ошибка! Ваш запрос оказался недостаточно полным. Попробуйте ещё раз.",
+    "Даже не знаю, что сказать... Попробуйте ответить ещё раз."
+]
 
 
 def dialog_handler(event, context):
@@ -25,7 +33,21 @@ def dialog_handler(event, context):
     try:
         # если пользователь первый раз в игре
         if not event['state']['user']:
-            return start_handler(res)  # запускаем обработчик start_handler() для приветстви
+            return start_handler(res)  # запускаем обработчик start_handler() для приветствия
+
+        if 'death' in event['state']['user']['event']:
+            return new_game(res)  # если игрок погиб
+
+        if event['state']['user']['last_response'] == 'restart':
+            if 'YANDEX.CONFIRM' in list(event['request']['nlu']['intents'].keys()):
+                return new_game(res)  # если подтвердил новую игру
+            else:
+                res['user_state_update'] = event['state']['user'].copy()
+                return intent_handler(res, 'return_game')  # если отказался от новой игры
+
+        # если пользователь просит повторить сообщение
+        if event['request']['nlu']['intents'] and 'restart' in list(event['request']['nlu']['intents'].keys()):
+            return restart(res, event)  # запускаем обработчик restart() для подтвеждения новой игры
 
         # если пользователь просит повторить сообщение
         if event['request']['nlu']['intents'] and 'YANDEX.REPEAT' in list(event['request']['nlu']['intents'].keys()):
@@ -37,8 +59,7 @@ def dialog_handler(event, context):
                 if key in intents:  # ищем подходящий интент из списка
                     if key != 'return_game' or event['state']['user']['last_response'] == 'command':
                         res['user_state_update'] = event['state']['user'].copy()
-                        return intent_handler(res, event,
-                                              key)  # запускаем обработчик intent_handler() для ответа на команду
+                        return intent_handler(res, key)  # запускаем обработчик intent_handler() для ответа на команду
 
         res['user_state_update'] = event['state']['user'].copy()
         data = data_handler(event['state']['user']['chapter'])
@@ -56,23 +77,27 @@ def dialog_handler(event, context):
             res['user_state_update']['chapter'] = data['next_chapter']
             data = data_handler(data['next_chapter'])  # переходим в новую главу, если это был последний ивент
 
-        # обновляем характеристики
-        res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
-            'reputation']
-        res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
-        res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
+        if res['user_state_update']['event'] != event['state']['user']['event'] or not event['session']['message_id']:
+            # обновляем характеристики
+            if -3 < res['user_state_update']['reputation'] < 3:
+                res['user_state_update']['reputation'] += data['events'][res['user_state_update']['event']]['stats'][
+                    'reputation']
+            if -3 < res['user_state_update']['mood'] < 3:
+                res['user_state_update']['mood'] += data['events'][res['user_state_update']['event']]['stats']['mood']
+            if -3 < res['user_state_update']['karma'] < 3:
+                res['user_state_update']['karma'] += data['events'][res['user_state_update']['event']]['stats']['karma']
 
-        # обновляем инвентарь
-        for item in data['events'][res['user_state_update']['event']]['items']:
-            res['user_state_update']['items'].extend(item)
+            # обновляем инвентарь
+            for item in data['events'][res['user_state_update']['event']]['items']:
+                res['user_state_update']['items'].append(item)
 
         # возвращаем текст события
         if res['user_state_update']['event'] == event['state']['user']['event'] and event['session']['message_id']:
             # обработка непонятного запроса
-            res['response']['text'] = 'Прошу прощения, ответьте конкретнее.'
+            res['response']['text'] = random.choice(MISUNDERSTANDING)
             res['response']['tts'] = res['response']['text']
         else:
-            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+            res['response']['text'] = data['events'][res['user_state_update']['event']]['text']  # текст
             res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']  # голос
         res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']  # кнопки
         if data['events'][res['user_state_update']['event']]['card']:
@@ -106,7 +131,7 @@ def start_handler(res):
     return res
 
 
-def intent_handler(res, req, intent):
+def intent_handler(res, intent):
     """Обработчик интентов"""
     if intent == 'return_game':  # воозвращение к основной ветке событий
         if res['user_state_update']['event'] == 'rules_1':
@@ -215,6 +240,36 @@ def repeat_handler(res, req):
     res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
     if data['events'][res['user_state_update']['event']]['card']:
         res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
+    return res
+
+
+def restart(res, req):
+    res['user_state_update'] = req['state']['user'].copy()
+    data = data_handler('commands')
+    res['response']['text'] = data['restart']['text']
+    res['response']['tts'] = res['response']['text']
+    res['response']['buttons'] = data['restart']['buttons']
+    res['user_state_update']['last_response'] = 'restart'
+    return res
+
+
+def new_game(res):
+    res['user_state_update'] = {
+        'chapter': 'prologue',
+        'event': 'event_0',
+        'reputation': 0,
+        'mood': 0,
+        'karma': 0,
+        'items': [],
+        'last_response': 'event'
+    }
+    data = data_handler('prologue')
+    res['response']['text'] = data['events'][res['user_state_update']['event']]['text']
+    res['response']['tts'] = data['events'][res['user_state_update']['event']]['tts']
+    res['response']['buttons'] = data['events'][res['user_state_update']['event']]['buttons']
+    if data['events'][res['user_state_update']['event']]['card']:
+        res['response']['card'] = data['events'][res['user_state_update']['event']]['card']
+
     return res
 
 
