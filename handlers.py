@@ -244,6 +244,7 @@ def repeat_handler(res, req):
 
 
 def restart(res, req):
+    """Обработчик запроса новой игры"""
     res['user_state_update'] = req['state']['user'].copy()
     data = data_handler('commands')
     res['response']['text'] = data['restart']['text']
@@ -254,6 +255,7 @@ def restart(res, req):
 
 
 def new_game(res):
+    """Начинает новую игру, сбрасывает показатели игрока"""
     res['user_state_update'] = {
         'chapter': 'prologue',
         'event': 'event_0',
